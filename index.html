@@ -92,7 +92,7 @@
             background-color: white;
             padding: 30px;
             border-radius: 20px;
-            max-width: 500px;
+            max-width: 450px;
             width: 90%;
             text-align: center;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
@@ -106,9 +106,10 @@
             margin-top: 0;
             color: #2d3748;
         }
-        .surprise-pdf {
+        .surprise-img {
             width: 100%;
-            height: 380px;
+            max-height: 350px;
+            object-fit: contain;
             border-radius: 12px;
             margin: 15px 0;
             border: 1px solid #e2e8f0;
@@ -153,8 +154,7 @@
         <div class="modal-content">
             <h2 id="modalTitle">June 13</h2>
             <div id="birthdayHeader"></div>
-            <!-- Updated to iframe to perfectly support your PDF files -->
-            <iframe id="modalPdf" class="surprise-pdf" src=""></iframe>
+            <img id="modalImage" class="surprise-img" src="" alt="Our memory">
             <div id="modalMessage" class="hebrew-message"></div>
             <button class="close-btn" onclick="closeModal()">סגור ×</button>
         </div>
@@ -165,22 +165,21 @@
         const startDay = 13;
         const endDay = 23;
 
-        // Exact names from your "ofiri" folder screenshot
-        const pdfFiles = {
-            13: "IMG_0048.HEIC.pdf",
-            14: "IMG_0054.HEIC.pdf",
-            15: "IMG_0180.HEIC.pdf",
-            16: "IMG_0194.HEIC.pdf",
-            17: "IMG_0258.HEIC.pdf",
-            18: "IMG_0698.HEIC.pdf",
-            19: "IMG_0855.HEIC.pdf",
-            20: "IMG_3537.HEIC.pdf",
-            21: "IMG_4664.HEIC.pdf",
-            22: "IMG_4701.HEIC.pdf",
-            23: "734e0170-dbc7-4fa5-b81c-d434dc83d545.JPG.pdf" // The ice cream photo!
+        // Clean image filenames perfectly matching your converted folder
+        const photoFiles = {
+            13: "IMG_3537 Large 2.jpeg",
+            14: "IMG_0698 Large.jpeg",
+            15: "IMG_0258 Large.jpeg",
+            16: "IMG_0180 Large.jpeg",
+            17: "IMG_0194 Large.jpeg",
+            18: "IMG_0054 Large.jpeg",
+            19: "IMG_3537 Large.jpeg",
+            20: "IMG_4701 Large.jpeg",
+            21: "IMG_5009 Large.jpeg",
+            22: "IMG_4664 Large.jpeg",
+            23: "734e0170-dbc7-4fa5-b81c-d434dc83d545.JPG" 
         };
 
-        // Your exact 11 love notes assigned sequentially to each day
         const hebrewMessages = {
             13: "אופירי יפה שלי ברוכות הבאות לספירה לאחור",
             14: "איזה מרגש שכבר מתקרבים חבל שיום ראשון",
@@ -219,11 +218,11 @@
             const modal = document.getElementById('surpriseModal');
             const modalTitle = document.getElementById('modalTitle');
             const birthdayHeader = document.getElementById('birthdayHeader');
-            const modalPdf = document.getElementById('modalPdf');
+            const modalImage = document.getElementById('modalImage');
             const modalMessage = document.getElementById('modalMessage');
 
             modalTitle.innerText = `June ${day}`;
-            modalPdf.src = pdfFiles[day];
+            modalImage.src = photoFiles[day];
             modalMessage.innerText = hebrewMessages[day];
 
             if (day === 23) {
@@ -242,7 +241,6 @@
 
         function closeModal() {
             document.getElementById('surpriseModal').style.display = 'none';
-            document.getElementById('modalPdf').src = ""; // Stop PDF rendering when closed
         }
 
         window.onclick = function(event) {
