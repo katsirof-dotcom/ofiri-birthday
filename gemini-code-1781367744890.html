@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Countdown Calendar</title>
+    <style>
+        body {
+            background-color: #fcf8f2;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 600px;
+            width: 100%;
+        }
+        @media (max-width: 500px) {
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        .day-box {
+            background-color: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .day-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #cbd5e0;
+        }
+        .day-box.future {
+            background-color: #edf2f7;
+            color: #a0aec0;
+            cursor: not-allowed;
+        }
+        .day-box.future:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: #e2e8f0;
+        }
+        .day-box.opened {
+            background-color: #fffaf0;
+            border-color: #feebc8;
+            cursor: default;
+        }
+        .day-box.opened:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal h2 {
+            margin-top: 0;
+            color: #2d3748;
+        }
+        .surprise-pdf {
+            width: 100%;
+            height: 380px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border: 1px solid #e2e8f0;
+        }
+        .hebrew-message {
+            font-size: 1.4rem;
+            color: #2d3748;
+            margin: 15px 0;
+            direction: rtl;
+            font-weight: bold;
+            line-height: 1.6;
+        }
+        .close-btn {
+            background-color: #ff7675;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .close-btn:hover {
+            background-color: #d63031;
+        }
+        .birthday-banner {
+            font-size: 2.2rem;
+            color: #d63031;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Birthday Countdown! ❤️</h1>
+    <div class="subtitle">לחצי על התאריך של היום כדי לגלות את ההפתעה</div>
+
+    <div class="grid" id="calendarGrid"></div>
+
+    <div class="modal" id="surpriseModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">June 13</h2>
+            <div id="birthdayHeader"></div>
+            <!-- Updated to iframe to perfectly support your PDF files -->
+            <iframe id="modalPdf" class="surprise-pdf" src=""></iframe>
+            <div id="modalMessage" class="hebrew-message"></div>
+            <button class="close-btn" onclick="closeModal()">סגור ×</button>
+        </div>
+    </div>
+
+    <script>
+        const currentDay = 13; // June 13, 2026
+        const startDay = 13;
+        const endDay = 23;
+
+        // Exact names from your "ofiri" folder screenshot
+        const pdfFiles = {
+            13: "IMG_0048.HEIC.pdf",
+            14: "IMG_0054.HEIC.pdf",
+            15: "IMG_0180.HEIC.pdf",
+            16: "IMG_0194.HEIC.pdf",
+            17: "IMG_0258.HEIC.pdf",
+            18: "IMG_0698.HEIC.pdf",
+            19: "IMG_0855.HEIC.pdf",
+            20: "IMG_3537.HEIC.pdf",
+            21: "IMG_4664.HEIC.pdf",
+            22: "IMG_4701.HEIC.pdf",
+            23: "734e0170-dbc7-4fa5-b81c-d434dc83d545.JPG.pdf" // The ice cream photo!
+        };
+
+        // Your exact 11 love notes assigned sequentially to each day
+        const hebrewMessages = {
+            13: "אופירי יפה שלי ברוכות הבאות לספירה לאחור",
+            14: "איזה מרגש שכבר מתקרבים חבל שיום ראשון",
+            15: "אוהבת מלא רק עוד קצת",
+            16: "אני הכי אוהבת אותך בעולם",
+            17: "איזה כיף שיש עוד יום לבלות איתך",
+            18: "מתרגשת שאת תיהיי ילדה גדולה",
+            19: "מעריכה ואוהבת",
+            20: "יום שבת חגיגות",
+            21: "לצערינו שוב ראשון אבל העיקר ביחד",
+            22: "אמן ומצאת כרטיס למסיבת היין",
+            23: "מזל טוב יפה שלי אוהבת מלא מלא"
+        };
+
+        const gridContainer = document.getElementById('calendarGrid');
+
+        for (let day = startDay; day <= endDay; day++) {
+            const box = document.createElement('div');
+            box.classList.add('day-box');
+            box.innerText = day;
+
+            if (day > currentDay) {
+                box.classList.add('future');
+            }
+
+            box.addEventListener('click', () => openDay(day));
+            gridContainer.appendChild(box);
+        }
+
+        function openDay(day) {
+            if (day > currentDay) {
+                alert(`סבלנות! אי אפשר לפתוח את יוני ${day} עדיין. 😊`);
+                return;
+            }
+
+            const modal = document.getElementById('surpriseModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const birthdayHeader = document.getElementById('birthdayHeader');
+            const modalPdf = document.getElementById('modalPdf');
+            const modalMessage = document.getElementById('modalMessage');
+
+            modalTitle.innerText = `June ${day}`;
+            modalPdf.src = pdfFiles[day];
+            modalMessage.innerText = hebrewMessages[day];
+
+            if (day === 23) {
+                birthdayHeader.innerHTML = `<div class="birthday-banner">🎈 מזל טוב! 🎈</div>`;
+                modalTitle.style.color = '#d63031';
+            } else {
+                birthdayHeader.innerHTML = '';
+                modalTitle.style.color = '#2d3748';
+            }
+
+            modal.style.display = 'flex';
+            
+            const boxes = document.querySelectorAll('.day-box');
+            boxes[day - startDay].classList.add('opened');
+        }
+
+        function closeModal() {
+            document.getElementById('surpriseModal').style.display = 'none';
+            document.getElementById('modalPdf').src = ""; // Stop PDF rendering when closed
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('surpriseModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
