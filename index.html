@@ -152,7 +152,7 @@
 
     <div class="modal" id="surpriseModal">
         <div class="modal-content">
-            <h2 id="modalTitle">June 13</h2>
+            <h2 id="modalTitle">June Day</h2>
             <div id="birthdayHeader"></div>
             <img id="modalImage" class="surprise-img" src="" alt="Our memory">
             <div id="modalMessage" class="hebrew-message"></div>
@@ -161,11 +161,12 @@
     </div>
 
     <script>
-        const currentDay = 13; // June 13, 2026
+        // Automatically checks the live current day of the month
+        const currentDay = new Date().getDate(); 
         const startDay = 13;
         const endDay = 23;
 
-        // Clean image filenames perfectly matching your converted folder
+        // Cleaned up file names matching your exact repository upload strings
         const photoFiles = {
             13: "IMG_3537 Large 2.jpeg",
             14: "IMG_0698 Large.jpeg",
@@ -177,7 +178,7 @@
             20: "IMG_4701 Large.jpeg",
             21: "IMG_5009 Large.jpeg",
             22: "IMG_4664 Large.jpeg",
-            23: "734e0170-dbc7-4fa5-b81c-d434dc83d545.JPG" 
+            23: "734e0170-dbc7-4fa5-b81c-d434dc83d545.JPG"
         };
 
         const hebrewMessages = {
@@ -222,7 +223,7 @@
             const modalMessage = document.getElementById('modalMessage');
 
             modalTitle.innerText = `June ${day}`;
-            modalImage.src = photoFiles[day];
+            modalImage.src = encodeURI(photoFiles[day]);
             modalMessage.innerText = hebrewMessages[day];
 
             if (day === 23) {
